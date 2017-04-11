@@ -7,6 +7,8 @@
 //
 
 #import "AppDelegate.h"
+#import "ViewController.h"
+#import "GZBaseViewController.h"
 
 @interface AppDelegate ()
 
@@ -16,10 +18,16 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+   
+    self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
+    UINavigationController *Nav = [[UINavigationController alloc]initWithRootViewController:[[ViewController alloc] init] ];
+    self.window.rootViewController = Nav ;
+    //添加3Dtouch功能
+    [self Add3DTouch];
+    
+    [self.window makeKeyAndVisible];
     return YES;
 }
-
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -47,5 +55,58 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+
+-(void)Add3DTouch{
+    //添加3DTouch方法大致分为两种
+    //1.静态添加：在info.plist文件中添加ShortcutItems
+    //2.动态添加：
+    //这是使用自定义的图片,无论图片是什么颜色显示的都是黑白色
+    //UIApplicationShortcutIcon *icon1 = [UIApplicationShortcutIcon iconWithTemplateImageName:@"图片名字.png"];
+    
+    //分享应用
+    UIApplicationShortcutIcon *icon = [UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeShare];
+    UIApplicationShortcutItem *item = [[UIApplicationShortcutItem alloc] initWithType:@"shortcutTypeOne" localizedTitle:[NSString stringWithFormat:@"分享%@",@"“3DTouch(GZ)”"] localizedSubtitle:@"点击分享" icon:icon userInfo:nil];
+    //跳转页面
+    UIApplicationShortcutIcon *icon1 = [UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeContact];
+    UIApplicationShortcutItem *item1 = [[UIApplicationShortcutItem alloc] initWithType:@"shortcutTypeTwo" localizedTitle:[NSString stringWithFormat:@"个人页面"] localizedSubtitle:@"跳转到个人页面" icon:icon1 userInfo:nil];
+    
+     //定位
+    UIApplicationShortcutIcon *icon2 = [UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeLocation];
+    UIApplicationShortcutItem *item2 = [[UIApplicationShortcutItem alloc] initWithType:@"shortcutTypeThree" localizedTitle:[NSString stringWithFormat:@"定位页面"] localizedSubtitle:nil icon:icon2 userInfo:nil];
+
+    [[UIApplication sharedApplication] setShortcutItems:@[item,item1,item2]];
+}
+
+#pragma mark- 执行3Dtouch点击事件
+- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler {
+
+    UINavigationController *nav = (UINavigationController *)self.window.rootViewController;
+    GZBaseViewController *GZVC = [[GZBaseViewController alloc] init];
+
+    if ([shortcutItem.type isEqualToString:@"shortcutTypeOne"]) {
+        [self IphoneShare];
+    } else if ([shortcutItem.type isEqualToString:@"shortcutTypeTwo"]) {
+        GZVC.navTitle = @"GZDemo";
+        [nav pushViewController:GZVC animated:YES];
+    }else if ([shortcutItem.type isEqualToString:@"shortcutTypeThree"]) {
+        GZVC.navTitle = @"3DTouchGZDemo";
+        [nav pushViewController:GZVC animated:YES];
+    }
+}
+
+-(void)IphoneShare{
+    //要分享的内容，加在一个数组里边，初始化UIActivityViewController
+    NSString *text = @"我是轻斟浅醉17，欢迎关注我！";
+    UIImage *image = [UIImage imageNamed:@"投票点击"];
+    NSURL *url = [NSURL URLWithString:@"http://www.jianshu.com/u/ab83189244d9"];
+    NSArray *activityItems = @[url,text,image];
+    NSLog(@"~~~~~~~%@",activityItems);
+    
+    
+    UIActivityViewController *vc = [[UIActivityViewController alloc]initWithActivityItems:activityItems applicationActivities:nil];
+    [self.window.rootViewController presentViewController:vc animated:YES completion:^{
+    }];
+
+}
 
 @end
